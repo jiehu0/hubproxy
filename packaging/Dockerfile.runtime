@@ -1,0 +1,10 @@
+# Lightweight runtime for a locally cross-compiled, static Linux binary.
+# Build context must contain hubproxy and config.toml.
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+ARG VERSION=dev
+LABEL org.opencontainers.image.source="https://github.com/jiehu0/hubproxy"
+LABEL org.opencontainers.image.revision=$VERSION
+WORKDIR /app
+COPY hubproxy config.toml ./
+CMD ["./hubproxy"]

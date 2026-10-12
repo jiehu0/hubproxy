@@ -3,9 +3,11 @@ package main
 import (
 	"embed"
 	"fmt"
+	"hubproxy/auth"
 	"log"
 	"mime"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 	"time"
@@ -71,6 +73,7 @@ func registerFrontendRoutes(router *gin.Engine, enabled bool) {
 		return
 	}
 
+	router.GET("/admin", serveSPA)
 	router.GET("/", serveSPA)
 	router.GET("/images", serveSPA)
 	router.GET("/search", serveSPA)
@@ -87,9 +90,11 @@ func registerFrontendRoutes(router *gin.Engine, enabled bool) {
 	})
 }
 
-func buildRouter(cfg *config.AppConfig) *gin.Engine {
+func buildRouter(cfg *config.AppConfig) (http.Handler, error) {
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
+	router := gin.New()
+	// Request URLs contain credentials. Log method and status only.
+	router.Use(func(c *gin.Context) { c.Next(); log.Printf("HTTP %s %d", c.Request.Method, c.Writer.Status()) })
 	utils.ConfigureTrustedProxies(router)
 
 	router.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
@@ -112,7 +117,16 @@ func buildRouter(cfg *config.AppConfig) *gin.Engine {
 	router.Any("/v2/*path", handlers.ProxyDockerRegistryGin)
 	router.NoRoute(handlers.GitHubProxyHandler)
 
-	return router
+	if cfg.Auth.Enabled {
+		manager, err := auth.New(cfg.Auth, os.Getenv("AUTH_ADMIN_PASSWORD"))
+		if err != nil {
+			return nil, err
+		}
+		manager.Register(router)
+		return manager.Wrap(router), nil
+	}
+	router.GET("/api/admin/session", func(c *gin.Context) { c.JSON(200, gin.H{"enabled": false, "authenticated": false}) })
+	return router, nil
 }
 
 func main() {
@@ -128,7 +142,10 @@ func main() {
 	handlers.InitDebouncer()
 
 	cfg := config.GetConfig()
-	router := buildRouter(cfg)
+	router, err := buildRouter(cfg)
+	if err != nil {
+		log.Fatalf("Authentication initialization failed: %v", err)
+	}
 
 	fmt.Printf("HubProxy 启动成功\n")
 	fmt.Printf("监听地址: %s:%d\n", cfg.Server.Host, cfg.Server.Port)

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import AdminPage from '@/pages/AdminPage.vue'
 import HomePage from '@/pages/HomePage.vue'
 import ImagesPage from '@/pages/ImagesPage.vue'
 import SearchPage from '@/pages/SearchPage.vue'
@@ -6,6 +7,7 @@ import SearchPage from '@/pages/SearchPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/admin', component: AdminPage, meta: { title: '令牌管理' } },
     {
       path: '/',
       component: HomePage,

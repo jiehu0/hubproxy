@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import { proxyHost } from '@/auth'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ChevronLeft, ChevronRight, Copy, Loader2, Search } from 'lucide-vue-next'
@@ -41,7 +42,7 @@ const tagsPage = ref(1)
 const tagsHasMore = ref(false)
 const copyHint = ref('')
 
-const host = computed(() => window.location.host)
+const host = computed(() => proxyHost())
 
 const hasResults = computed(() => results.value.length > 0)
 const totalPages = computed(() => Math.max(1, Math.ceil(resultCount.value / pageSize)))

@@ -1,3 +1,5 @@
+import { proxyPath } from '@/auth'
+
 class ApiError extends Error {
   status: number
 
@@ -27,7 +29,7 @@ async function parseError(res: Response): Promise<string> {
 }
 
 async function getJSON<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
+  const res = await fetch(proxyPath(url), {
     ...init,
     headers: {
       Accept: 'application/json',

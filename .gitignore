@@ -29,3 +29,10 @@ docs/.astro/
 
 # Logs
 *.log
+
+# Local authentication state
+.env
+.env.*
+!.env.example
+src/data/
+data/

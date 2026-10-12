@@ -9,13 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"hubproxy/config"
 	"hubproxy/handlers"
 	"hubproxy/utils"
 )
 
-func newTestRouter(t *testing.T, configBody string) *gin.Engine {
+func newTestRouter(t *testing.T, configBody string) http.Handler {
 	t.Helper()
 
 	path := filepath.Join(t.TempDir(), "config.toml")
@@ -24,6 +23,7 @@ func newTestRouter(t *testing.T, configBody string) *gin.Engine {
 	}
 
 	t.Setenv("CONFIG_PATH", path)
+	t.Setenv("AUTH_ENABLED", "false")
 	if err := config.LoadConfig(); err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +34,11 @@ func newTestRouter(t *testing.T, configBody string) *gin.Engine {
 	handlers.InitImageStreamer()
 	handlers.InitDebouncer()
 
-	return buildRouter(config.GetConfig())
+	router, err := buildRouter(config.GetConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return router
 }
 
 func performRequest(router http.Handler, method, path, body string) *httptest.ResponseRecorder {

@@ -18,7 +18,7 @@ HubProxy is an open proxy service — improper deployment creates abuse risk. Fo
 
 ## Not Built In
 
-HubProxy has **no** admin login, Basic Auth, API keys, or Prometheus `/metrics`. The web UI is a public SPA — security relies on network placement and configuration.
+This fork adds admin login and proxy tokens whose lifetime begins on first use. Authentication is enabled by default and requires `AUTH_ADMIN_PASSWORD`; persist the configured token data file. Proxy requests require a token even with an admin session. See `docs/timed-proxy-tokens.md` in the repository. Prometheus `/metrics` is not provided.
 
 ## Main Risks
 

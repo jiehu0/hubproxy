@@ -1,14 +1,21 @@
 services:
   hubproxy:
-    image: ghcr.io/sky22333/hubproxy
+    build: .
+    image: hubproxy:timed-tokens
     container_name: hubproxy
     restart: always
     ports:
       - "5000:5000"
+    environment:
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:?Set AUTH_ADMIN_PASSWORD in a local .env file}
     volumes:
       - ./src/config.toml:/app/config.toml:ro
+      - hubproxy-auth:/app/data
     logging:
       driver: json-file
       options:
         max-size: "200m"
         max-file: "3"
+
+volumes:
+  hubproxy-auth:

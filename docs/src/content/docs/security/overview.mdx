@@ -18,7 +18,7 @@ HubProxy 作为开放代理服务，部署不当可能带来滥用风险。遵�
 
 ## 未内置的能力
 
-HubProxy **没有**管理后台登录、Basic Auth、API Key 或 Prometheus 指标端点。Web 界面为公开 SPA，安全依赖网络层与配置策略。
+此 fork 已加入管理员登录和首次使用计时的代理令牌，默认启用。必须设置 `AUTH_ADMIN_PASSWORD` 并持久化令牌数据目录；管理员会话不能绕过代理令牌验证。详见仓库中的 `docs/timed-proxy-tokens.md`。尚未提供 Prometheus 指标端点。
 
 ## 主要风险
 

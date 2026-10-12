@@ -26,6 +26,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/partial"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+	"hubproxy/auth"
 	"hubproxy/config"
 	"hubproxy/utils"
 )
@@ -774,7 +775,7 @@ func handleDirectImageDownload(c *gin.Context) {
 		q := url.Values{}
 		q.Set("image", imageRef)
 		q.Set("token", token)
-		c.JSON(http.StatusOK, gin.H{"download_url": "/api/image/download?" + q.Encode()})
+		c.JSON(http.StatusOK, gin.H{"download_url": auth.ProxyPrefix(c.Request) + "/api/image/download?" + q.Encode()})
 		return
 	}
 
@@ -929,7 +930,7 @@ func handleSimpleBatchDownload(c *gin.Context) {
 		c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"download_url": fmt.Sprintf("/api/image/batch?token=%s", token)})
+	c.JSON(http.StatusOK, gin.H{"download_url": auth.ProxyPrefix(c.Request) + fmt.Sprintf("/api/image/batch?token=%s", token)})
 }
 
 // handleImageInfo 处理镜像信息查询

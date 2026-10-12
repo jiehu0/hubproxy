@@ -1,3 +1,9 @@
+# 管理员密码通过 AUTH_ADMIN_PASSWORD 环境变量提供（12–72 字节）。
+[auth]
+enabled = true
+dataFile = "data/tokens.json"
+cookieSecure = true # 仅本机 HTTP 测试时设置 false；生产环境使用 HTTPS
+
 [server]
 # 可通过 CONFIG_PATH 环境变量指定配置文件路径，默认读取当前工作目录下的 config.toml
 host = "0.0.0.0"

@@ -1,5 +1,7 @@
 # HubProxy
 
+> 此 fork 已加入登录管理与首次使用开始计时的代理令牌，默认开启。启动前必须设置 `AUTH_ADMIN_PASSWORD`；数据目录需要持久化。配置和用法见 [令牌说明](docs/timed-proxy-tokens.md)。下文原作者的无令牌示例仅适用于显式关闭认证的模式。
+
  **Docker 和 GitHub 加速代理服务器**
 
 一个轻量级、高性能的多功能代理服务，提供 Docker 镜像加速、GitHub 文件加速、下载离线镜像、在线搜索 Docker 镜像等功能。

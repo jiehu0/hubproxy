@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { proxyHost, proxyPath } from '@/auth'
 import { computed, ref } from 'vue'
 import { Check, Clipboard, Container, Link2, Rocket, Sparkles } from 'lucide-vue-next'
 import Button from '@/components/ui/Button.vue'
@@ -11,7 +12,7 @@ const output = ref('')
 const error = ref('')
 const copied = ref(false)
 
-const host = computed(() => window.location.host)
+const host = computed(() => proxyHost())
 
 const features = [
   { icon: Rocket, label: 'GitHub 加速' },
@@ -59,12 +60,12 @@ function formatLink() {
   }
 
   if (link.startsWith('https://') || link.startsWith('http://')) {
-    output.value = `https://${host.value}/${link}`
+    try { output.value = window.location.origin + proxyPath(`/${link}`) } catch (e) { error.value = (e as Error).message; output.value = '' }
     return
   }
 
   if (allowedHosts.some((prefix) => link.startsWith(prefix))) {
-    output.value = `https://${host.value}/https://${link}`
+    try { output.value = window.location.origin + proxyPath(`/https://${link}`) } catch (e) { error.value = (e as Error).message; output.value = '' }
     return
   }
 

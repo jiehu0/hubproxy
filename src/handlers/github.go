@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"hubproxy/auth"
 	"hubproxy/config"
 	"hubproxy/utils"
 )
@@ -164,6 +165,8 @@ func proxyGitHubWithRedirect(c *gin.Context, u string, redirectCount int) {
 		realHost = "https://" + realHost
 	}
 
+	realHost += auth.ProxyPrefix(c.Request)
+
 	// 处理.sh和.ps1文件的智能处理
 	if strings.HasSuffix(strings.ToLower(u), ".sh") || strings.HasSuffix(strings.ToLower(u), ".ps1") {
 		isGzipCompressed := resp.Header.Get("Content-Encoding") == "gzip"
@@ -192,7 +195,7 @@ func proxyGitHubWithRedirect(c *gin.Context, u string, redirectCount int) {
 		// 处理重定向
 		if location := resp.Header.Get("Location"); location != "" {
 			if CheckGitHubURL(location) != nil {
-				c.Header("Location", "/"+location)
+				c.Header("Location", auth.ProxyPrefix(c.Request)+"/"+location)
 			} else {
 				proxyGitHubWithRedirect(c, location, redirectCount+1)
 				return
@@ -216,7 +219,7 @@ func proxyGitHubWithRedirect(c *gin.Context, u string, redirectCount int) {
 		// 处理重定向
 		if location := resp.Header.Get("Location"); location != "" {
 			if CheckGitHubURL(location) != nil {
-				c.Header("Location", "/"+location)
+				c.Header("Location", auth.ProxyPrefix(c.Request)+"/"+location)
 			} else {
 				proxyGitHubWithRedirect(c, location, redirectCount+1)
 				return

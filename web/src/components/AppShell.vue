@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { Container, Github, Menu, Rocket, Search, X, Zap } from 'lucide-vue-next'
+import { KeyRound, Container, Github, Menu, Rocket, Search, X, Zap } from 'lucide-vue-next'
 import Button from '@/components/ui/Button.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
@@ -11,6 +11,7 @@ const isDark = ref(false)
 const menuOpen = ref(false)
 
 const links = [
+  { to: '/admin', label: '令牌管理', icon: KeyRound },
   { to: '/', label: 'GitHub 加速', icon: Rocket },
   { to: '/images', label: '离线镜像', icon: Container },
   { to: '/search', label: '镜像搜索', icon: Search },

@@ -19,8 +19,15 @@ type RegistryMapping struct {
 	Enabled  bool   `toml:"enabled"`
 }
 
+type AuthConfig struct {
+	Enabled      bool   `toml:"enabled"`
+	DataFile     string `toml:"dataFile"`
+	CookieSecure bool   `toml:"cookieSecure"`
+}
+
 // AppConfig 应用配置结构体
 type AppConfig struct {
+	Auth   AuthConfig `toml:"auth"`
 	Server struct {
 		Host           string `toml:"host"`
 		Port           int    `toml:"port"`
@@ -70,6 +77,7 @@ var (
 // DefaultConfig 返回默认配置
 func DefaultConfig() *AppConfig {
 	return &AppConfig{
+		Auth: AuthConfig{Enabled: true, DataFile: "data/tokens.json", CookieSecure: true},
 		Server: struct {
 			Host           string `toml:"host"`
 			Port           int    `toml:"port"`
@@ -224,6 +232,15 @@ func LoadConfig() error {
 
 // overrideFromEnv 从环境变量覆盖配置
 func overrideFromEnv(cfg *AppConfig) {
+	if val, ok := os.LookupEnv("AUTH_ENABLED"); ok {
+		cfg.Auth.Enabled = val != "false"
+	}
+	if val := os.Getenv("AUTH_DATA_FILE"); val != "" {
+		cfg.Auth.DataFile = val
+	}
+	if val, ok := os.LookupEnv("AUTH_COOKIE_SECURE"); ok {
+		cfg.Auth.CookieSecure = val != "false"
+	}
 	if val := os.Getenv("SERVER_HOST"); val != "" {
 		cfg.Server.Host = val
 	}
