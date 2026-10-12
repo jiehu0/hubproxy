@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base32"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -41,6 +43,31 @@ func randomSecret() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(b), nil
+}
+
+// 128 random bits encoded as 26 lowercase characters, valid in Docker paths.
+func randomProxySecret() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(b)), nil
+}
+
+func validProxySecret(secret string) bool {
+	if len(secret) == 64 {
+		_, err := hex.DecodeString(secret)
+		return err == nil
+	}
+	if len(secret) != 26 {
+		return false
+	}
+	for _, c := range secret {
+		if !(c >= 'a' && c <= 'z' || c >= '2' && c <= '7') {
+			return false
+		}
+	}
+	return true
 }
 
 func digest(secret string) string {
@@ -99,7 +126,7 @@ func (s *Store) Create(name string, seconds int64) (string, Token, error) {
 	if seconds < 60 || seconds > 2592000 {
 		return "", Token{}, errors.New("有效时长应在 1 分钟至 30 天之间")
 	}
-	secret, err := randomSecret()
+	secret, err := randomProxySecret()
 	if err != nil {
 		return "", Token{}, err
 	}
@@ -119,10 +146,7 @@ func (s *Store) Create(name string, seconds int64) (string, Token, error) {
 
 // Authorize uses an absolute expiry; later requests never extend it.
 func (s *Store) Authorize(secret string, activate bool) error {
-	if len(secret) != 64 {
-		return ErrDenied
-	}
-	if _, err := hex.DecodeString(secret); err != nil {
+	if !validProxySecret(secret) {
 		return ErrDenied
 	}
 	s.mu.Lock()

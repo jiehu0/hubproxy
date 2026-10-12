@@ -2,6 +2,9 @@ import { ref } from 'vue'
 export const authEnabled = ref(true)
 export const authenticated = ref(false)
 export const activeToken = ref(sessionStorage.getItem('hubproxy-token') || '')
+export function isProxyToken(value: string): boolean {
+  return /^(?:[a-z2-7]{26}|[a-f0-9]{64})$/.test(value)
+}
 export function selectToken(value: string) {
   activeToken.value = value.trim()
   if (activeToken.value) sessionStorage.setItem('hubproxy-token', activeToken.value)
@@ -9,7 +12,7 @@ export function selectToken(value: string) {
 }
 export function proxyPath(path: string): string {
   if (!authEnabled.value) return path
-  if (!/^[a-f0-9]{64}$/.test(activeToken.value)) throw new Error('请先在令牌管理中创建或填入令牌')
+  if (!isProxyToken(activeToken.value)) throw new Error('请先在令牌管理中创建或填入令牌')
   return `/${activeToken.value}${path}`
 }
 export function proxyHost(): string {

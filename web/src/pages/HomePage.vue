@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { proxyHost, proxyPath } from '@/auth'
+import { authEnabled, proxyHost, proxyPath } from '@/auth'
+import { RouterLink } from 'vue-router'
 import { computed, ref } from 'vue'
-import { Check, Clipboard, Container, Link2, Rocket, Sparkles } from 'lucide-vue-next'
+import { Check, Clipboard, Container, KeyRound, Link2, Rocket, Sparkles } from 'lucide-vue-next'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import PageHero from '@/components/PageHero.vue'
@@ -104,6 +105,12 @@ function onOpen() {
       </div>
     </PageHero>
 
+    <div v-if="authEnabled" class="mb-8 flex justify-center">
+      <RouterLink to="/admin" class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+        <KeyRound class="size-4" />进入管理页面
+      </RouterLink>
+    </div>
+
     <section class="surface-panel field-block">
       <div class="flex flex-col gap-3 sm:flex-row">
         <Input
@@ -163,11 +170,11 @@ function onOpen() {
             class="terminal-example"
           >
             <span class="example-tag">{{ item.label }}</span>
-            <p class="font-mono leading-relaxed">
+            <p class="break-all font-mono leading-relaxed">
               <span class="text-muted-foreground">$ </span>
               <span class="text-muted-foreground/70 line-through decoration-muted-foreground/40">{{ item.original }}</span>
             </p>
-            <p class="font-mono leading-relaxed">
+            <p class="break-all font-mono leading-relaxed">
               <span class="text-muted-foreground">$ </span>
               <span class="text-primary">{{ item.accelerated }}</span>
             </p>
