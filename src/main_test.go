@@ -69,6 +69,20 @@ func TestReadyRoute(t *testing.T) {
 	}
 }
 
+func TestAdminSessionDoesNotConsumeDownloadQuota(t *testing.T) {
+	router := newTestRouter(t, "[rateLimit]\nrequestLimit = 0\n")
+	for i := 0; i < 3; i++ {
+		w := performRequest(router, http.MethodGet, "/api/admin/session", "")
+		if w.Code != http.StatusOK {
+			t.Fatalf("session blocked by download quota: %d", w.Code)
+		}
+	}
+	w := performRequest(router, http.MethodGet, "/api/search?q=nginx", "")
+	if w.Code != http.StatusTooManyRequests {
+		t.Fatalf("download quota not enforced: %d", w.Code)
+	}
+}
+
 func TestFrontendDisabledRoutesReturnNotFound(t *testing.T) {
 	router := newTestRouter(t, `
 [server]

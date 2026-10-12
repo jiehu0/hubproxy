@@ -225,7 +225,7 @@ func (i *IPRateLimiter) GetLimiter(ip string) (*rate.Limiter, bool) {
 func RateLimitMiddleware(limiter *IPRateLimiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		if path == "/" || path == "/images" || path == "/search" ||
+		if path == "/" || path == "/admin" || path == "/images" || path == "/search" ||
 			path == "/favicon.ico" ||
 			strings.HasPrefix(path, "/assets/") {
 			c.Next()
@@ -241,6 +241,13 @@ func RateLimitMiddleware(limiter *IPRateLimiter) gin.HandlerFunc {
 				"error": "您已被限制访问",
 			})
 			c.Abort()
+			return
+		}
+
+		// Management has its own login throttle and session authorization. Polling
+		// token status must not exhaust the quota used by downloads.
+		if strings.HasPrefix(path, "/api/admin/") {
+			c.Next()
 			return
 		}
 
