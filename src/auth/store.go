@@ -45,21 +45,17 @@ func randomSecret() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// 128 random bits encoded as 26 lowercase characters, valid in Docker paths.
+// 75 random bits encoded as 15 lowercase characters, valid in Docker paths.
 func randomProxySecret() (string, error) {
-	b := make([]byte, 16)
+	b := make([]byte, 10)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
-	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(b)), nil
+	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(b))[:15], nil
 }
 
 func validProxySecret(secret string) bool {
-	if len(secret) == 64 {
-		_, err := hex.DecodeString(secret)
-		return err == nil
-	}
-	if len(secret) != 26 {
+	if len(secret) != 15 {
 		return false
 	}
 	for _, c := range secret {

@@ -1,9 +1,11 @@
 import { ref } from 'vue'
 export const authEnabled = ref(true)
 export const authenticated = ref(false)
-export const activeToken = ref(sessionStorage.getItem('hubproxy-token') || '')
+const savedToken = sessionStorage.getItem('hubproxy-token') || ''
+export const activeToken = ref(isProxyToken(savedToken) ? savedToken : '')
+if (savedToken && !isProxyToken(savedToken)) sessionStorage.removeItem('hubproxy-token')
 export function isProxyToken(value: string): boolean {
-  return /^(?:[a-z2-7]{26}|[a-f0-9]{64})$/.test(value)
+  return /^[a-z2-7]{15}$/.test(value)
 }
 export function selectToken(value: string) {
   activeToken.value = value.trim()

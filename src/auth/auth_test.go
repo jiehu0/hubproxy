@@ -242,16 +242,16 @@ func TestAdminLoginCSRFAndTokenLifecycle(t *testing.T) {
 	}
 }
 
-func TestShortTokensAndLegacyPersistence(t *testing.T) {
+func TestShortTokensRejectPreviousFormats(t *testing.T) {
 	s := testStore(t)
 	secret, _, err := s.Create("short", 60)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(secret) != 26 || !validProxySecret(secret) {
+	if len(secret) != 15 || !validProxySecret(secret) {
 		t.Fatalf("unexpected new credential format")
 	}
-	// Model an already active token written by the deployed 64-character version.
+	// Previously issued credentials remain listed but are no longer accepted.
 	legacy, err := randomSecret()
 	if err != nil {
 		t.Fatal(err)
@@ -268,8 +268,8 @@ func TestShortTokensAndLegacyPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = loaded.Authorize(legacy, true); err != nil {
-		t.Fatal("legacy credential rejected", err)
+	if err = loaded.Authorize(legacy, true); err != ErrDenied {
+		t.Fatal("legacy credential accepted", err)
 	}
 	if !loaded.tokens[id].ActivatedAt.Equal(start) || !loaded.tokens[id].ExpiresAt.Equal(end) {
 		t.Fatal("legacy clock changed")
@@ -277,7 +277,7 @@ func TestShortTokensAndLegacyPersistence(t *testing.T) {
 	if err = loaded.Authorize(secret, true); err != nil {
 		t.Fatal("short credential rejected", err)
 	}
-	for _, bad := range []string{strings.Repeat("a", 25), strings.Repeat("a", 27), strings.Repeat("0", 26), strings.ToUpper(secret)} {
+	for _, bad := range []string{strings.Repeat("a", 14), strings.Repeat("a", 16), strings.Repeat("0", 15), strings.Repeat("a", 26), strings.ToUpper(secret)} {
 		if validProxySecret(bad) {
 			t.Fatal("invalid credential format accepted")
 		}

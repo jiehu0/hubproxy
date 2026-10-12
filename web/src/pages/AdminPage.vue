@@ -40,7 +40,7 @@ async function logout() {
   catch (e) { error.value = (e as Error).message }
 }
 function useSaved() {
-  if (!isProxyToken(restored.value.trim())) { error.value = '请输入完整的 26 位令牌（也支持旧版 64 位令牌）'; return }
+  if (!isProxyToken(restored.value.trim())) { error.value = '请输入完整的 15 位令牌'; return }
   selectToken(restored.value); error.value = ''
 }
 function status(token: Token) {
@@ -67,7 +67,7 @@ onUnmounted(() => clearInterval(timer))
       <Button variant="secondary" @click="async () => { copied = await copyText(base) }">{{ copied ? '已复制' : '复制代理地址' }}</Button>
       <div class="space-y-2 text-sm"><p>文件下载：在此地址后追加原始链接。</p><code class="block break-all">{{ base }}/https://github.com/用户/仓库/releases/…</code><p>Docker 拉取：</p><code class="block break-all">docker pull {{ host }}/{{ secret }}/library/nginx:latest</code></div>
     </section>
-    <details class="surface-panel space-y-3 p-5"><summary class="cursor-pointer">使用已保存的令牌</summary><label class="block"><span class="sr-only">已保存的令牌</span><Input v-model="restored" type="password" autocomplete="off" placeholder="粘贴令牌（兼容旧版）" /></label><Button variant="secondary" @click="useSaved">用于本站下载</Button></details>
+    <details class="surface-panel space-y-3 p-5"><summary class="cursor-pointer">使用已保存的令牌</summary><label class="block"><span class="sr-only">已保存的令牌</span><Input v-model="restored" type="password" autocomplete="off" placeholder="粘贴 15 位令牌" /></label><Button variant="secondary" @click="useSaved">用于本站下载</Button></details>
     <section class="surface-panel overflow-x-auto p-6">
       <div class="mb-4 flex justify-between"><h2 class="text-lg font-semibold">令牌记录</h2><Button variant="ghost" size="sm" @click="reload">刷新</Button></div>
       <p v-if="!tokens.length" class="text-muted-foreground">尚未创建令牌。</p>
